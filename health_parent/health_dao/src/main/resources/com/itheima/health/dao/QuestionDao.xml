@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.health.dao.QuestionDao">
+
+    <insert id="add" parameterType="com.itheima.health.pojo.Question">
+        insert into t_question(name,type,gender,fill)
+        values
+        (#{name},#{type},#{gender},#{fill})
+    </insert>
+
+    <select id="findByCondition" parameterType="string" resultType="com.itheima.health.pojo.Question">
+        select * from t_question
+         <where>
+             <if test="value !=null and value.length>0">
+                 name like #{value }
+             </if>
+         </where>
+    </select>
+     <select id="findById" parameterType="int" resultType="com.itheima.health.pojo.Question">
+         select * from  t_question where id = #{id}
+     </select>
+
+    <update id="update" parameterType="com.itheima.health.pojo.Question">
+        update t_question
+        set
+          name = #{name},
+          type = #{type},
+          gender = #{gender},
+          fill = #{fill}
+          where
+          id =#{id}
+    </update>
+
+     <delete id="delete" parameterType="int">
+         delete from t_question where id = #{id}
+     </delete>
+</mapper>

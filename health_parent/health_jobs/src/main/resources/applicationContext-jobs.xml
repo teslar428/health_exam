@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                  http://www.springframework.org/schema/beans/spring-beans.xsd
+                  http://www.springframework.org/schema/context
+                  http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+
+    <bean id="clearImgJob" class="com.itheima.health.job.ClearImgJob"/>
+
+    <bean id="clearOrderSetting" class="com.itheima.health.job.ClearOrderSetting"/>
+
+    <bean id="clearImgJobDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="clearImgJob"/>
+        <property name="targetMethod" value="doCleanImage"/>
+    </bean>
+
+    <bean id="clearOrderSettingJobDetail"
+          class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="clearOrderSetting"/>
+        <property name="targetMethod" value="doClearOrderSetting"/>
+    </bean>
+
+    <bean id="clearImgTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="clearImgJobDetail"/>
+        <property name="cronExpression" value="0 0 4 * * ?"/>
+    </bean>
+
+    <bean id="clearOrderSettingTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="clearOrderSettingJobDetail"/>
+        <property name="cronExpression" value="0 0 2 L * ?"/>
+    </bean>
+
+    <!-- 注册一个统一的调度工厂，通过这个调度工厂调度任务 -->
+    <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <!-- 注入多个触发器 -->
+        <property name="triggers">
+            <list>
+                <ref bean="clearImgTrigger"/>
+                <ref bean="clearOrderSettingTrigger"/>
+            </list>
+        </property>
+    </bean>
+
+    <import resource="classpath:applicationContext-redis.xml"/>
+    <import resource="classpath:applicationContext-tx.xml"/>
+</beans>

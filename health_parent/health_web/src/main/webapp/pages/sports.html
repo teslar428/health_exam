@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- 页面meta -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>传智健康</title>
+        <meta name="description" content="传智健康">
+        <meta name="keywords" content="传智健康">
+        <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+        <!-- 引入样式 -->
+        <link rel="stylesheet" href="../plugins/elementui/index.css">
+        <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="../css/style.css">
+    </head>
+    <body class="hold-transition">
+        <div id="app">
+            <div class="content-header">
+                <h1>知识库<small>运动项目库</small></h1>
+                <el-breadcrumb separator-class="el-icon-arrow-right" class="breadcrumb">
+                    <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+                    <el-breadcrumb-item>知识库</el-breadcrumb-item>
+                    <el-breadcrumb-item>运动项目库</el-breadcrumb-item>
+                </el-breadcrumb>
+            </div>
+            <div class="app-container">
+                <div class="box">
+                    <div class="filter-container">
+                        <el-input placeholder="档案号/姓名" v-model="pagination.queryString" style="width: 200px;" class="filter-item"></el-input>
+                        <el-button @click="findPage()"  class="dalfBut">查询</el-button>
+                        <el-button type="primary" class="butT" @click="handleCreate()">新建</el-button>
+                    </div>
+                    <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                        <el-table-column type="index" align="center" label="序号"></el-table-column>
+                        <el-table-column prop="coding" label="编码" align="center"></el-table-column>
+                        <el-table-column prop="name" label="项目名称" align="center"></el-table-column>
+
+                        <el-table-column label="运动强度" align="center">
+                            <template slot-scope="scope">
+                                <span>{{ scope.row.intensity == '0' ? '强' : scope.row.intensity == '1' ? '中' : '弱'}}</span>
+                            </template>
+                        </el-table-column>
+
+                        <el-table-column prop="step" label="千步当量" align="center"></el-table-column>
+                        <el-table-column prop="time" label="运动时间" align="center"></el-table-column>
+                        <el-table-column prop="age" label="年龄区间" align="center"></el-table-column>
+                        <el-table-column label="操作" align="center">
+                            <template slot-scope="scope">
+                                <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+                                <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                    <div class="pagination-container">
+                        <el-pagination
+                            class="pagiantion"
+                            @current-change="handleCurrentChange"
+                            :current-page="pagination.currentPage"
+                            :page-size="pagination.pageSize"
+                            layout="total, prev, pager, next, jumper"
+                            :total="pagination.total">
+                        </el-pagination>
+                    </div>
+                    <!-- 新增标签弹层 -->
+                    <div class="add-form">
+                        <el-dialog title="新增运动" :visible.sync="dialogFormVisible">
+                            <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right" label-width="100px">
+                                <el-row>
+                                    <el-col :span="12">
+                                        <el-form-item label="编码" prop="coding">
+                                            <el-input v-model="formData.coding"/>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="项目名称" prop="name">
+                                            <el-input v-model="formData.name"/>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                                <el-row>
+                                    <el-col :span="12">
+                                        <el-form-item label="运动强度">
+                                            <el-select v-model="formData.intensity">
+                                                <el-option label="强" value="0"></el-option>
+                                                <el-option label="中" value="1"></el-option>
+                                                <el-option label="弱" value="2"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="千步当量">
+                                            <el-input v-model="formData.step"/>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                                <el-row>
+
+                                    <el-col :span="12">
+                                        <el-form-item label="运动时间">
+                                            <el-input v-model="formData.time"/>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="年龄区间">
+                                            <el-input v-model="formData.age"/>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                            </el-form>
+                            <div slot="footer" class="dialog-footer">
+                                <el-button @click="dialogFormVisible = false">取消</el-button>
+                                <el-button type="primary" @click="handleAdd()">确定</el-button>
+                            </div>
+                        </el-dialog>
+                    </div>
+
+                    <!-- 编辑标签弹层 -->
+                    <div class="add-form">
+                        <el-dialog title="编辑检查项" :visible.sync="dialogFormVisible4Edit">
+                            <el-form ref="dataEditForm" :model="formData" :rules="rules" label-position="right" label-width="100px">
+                                <el-row>
+                                    <el-col :span="12">
+                                        <el-form-item label="编码" prop="coding">
+                                            <el-input v-model="formData.coding"/>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="项目名称" prop="name">
+                                            <el-input v-model="formData.name"/>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                                <el-row>
+                                    <el-col :span="12">
+                                        <el-form-item label="运动强度">
+                                            <el-select v-model="formData.intensity">
+                                                <el-option label="强" value="0"></el-option>
+                                                <el-option label="中" value="1"></el-option>
+                                                <el-option label="弱" value="2"></el-option>
+                                            </el-select>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="千步当量">
+                                            <el-input v-model="formData.step"/>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                                <el-row>
+
+                                    <el-col :span="12">
+                                        <el-form-item label="运动时间">
+                                            <el-input v-model="formData.time"/>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        <el-form-item label="年龄区间">
+                                            <el-input v-model="formData.age"/>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-row>
+                            </el-form>
+                            <div slot="footer" class="dialog-footer">
+                                <el-button @click="dialogFormVisible4Edit = false">取消</el-button>
+                                <el-button type="primary" @click="handleEdit()">确定</el-button>
+                            </div>
+                        </el-dialog>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <!-- 引入组件库 -->
+    <script src="../js/vue.js"></script>
+    <script src="../plugins/elementui/index.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script src="../js/axios-0.18.0.js"></script>
+    <script>
+        var vue = new Vue({
+            el: '#app',
+            data:{
+                pagination: {//分页数据模型
+				    currentPage: 1,//当前页码
+				    pageSize:10,//每页显示的记录数
+				    total:0,//总记录数
+				    queryString:null//查询条件
+				},
+				dataList: [],//当前页要展示的分页列表数据
+                formData: {},//表单数据
+                dialogFormVisible: false,//增加表单是否可见，即是否弹出添加窗口
+                dialogFormVisible4Edit:false,//修改表单是否可见，即是否弹出修改窗口
+                rules: {//校验规则
+                    coding: [{ required: true, message: '编码为必填项', trigger: 'blur' }],
+                    name: [{ required: true, message: '项目名称为必填项', trigger: 'blur' }]
+                }
+            },
+            //钩子函数，VUE对象初始化完成后自动执行
+            created(){
+                this.findPage();
+            },
+            methods: {
+				// 弹出添加窗口
+                handleCreate() {
+                    this.resetForm();
+                    this.dialogFormVisible = true;
+                },
+				// 添加
+                handleAdd () {
+                    // 表单校验
+                    this.$refs['dataAddForm'].validate((valid) => {
+                        // 所有验证通过后才会为true,只要有一个失败就是false
+                        if (valid) {
+                            // 发送ajax axios
+                            axios.post('/sports/add.do',this.formData).then(res => {
+                                // res.data  {flag:ture,message:'',data:{}}
+                                this.$message({
+                                    message: res.data.message,
+                                    type: res.data.flag?'success':'error'
+                                });
+                                // 如果成功
+                                if(res.data.flag){
+                                    // 关闭窗口
+                                    this.dialogFormVisible=false;
+                                    // 刷新列表
+                                    this.findPage();
+                                }
+                            })
+                        } else {
+                            //console.log('error submit!!');
+                            this.$message({
+                                message: "运动验证失败",
+                                type: 'error'
+                            });
+                            // 中止form表单的提交
+                            return false;
+                        }
+                    });
+                },
+                // 重置表单
+                resetForm() {
+                this.formData = {};
+                },
+				// 分页查询
+                findPage() {
+                //    分页参数
+                    var parm = {
+                        currentPage: this.pagination.currentPage,
+                        pageSize: this.pagination.pageSize,
+                        queryString: this.pagination.queryString
+                    };
+                // 请求后台
+                    axios.post("/sports/findPage.do",parm).then((respone) =>{
+                    //为模型数据赋值,基于vue的双向绑定展示到页面
+                        vue.dataList = respone.data.data.rows;
+                        vue.pagination.total = respone.data.data.total;
+                    });
+                },
+                //权限不足提示
+                showMessage(r){
+                   if (r =='Error: Request failed with status code 403 '){
+                       //权限不足
+                       this.$message.error('无访问权限');
+                       return;
+                   } else{
+                       this.$message.error('未知错误');
+                       return;
+                   }
+                },
+                // 删除
+                handleDelete(row) {
+                    this.$confirm('此操作将【永久删除】该运动, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        // 点击确定时，调用的地方
+                        // 发送删除的请求
+                        axios.post("/sports/delete.do?id=" +row.id).then((res) =>{
+                            this.$message({
+                                message: res.data.message,
+                                type: res.data.flag?'success':'error'
+                            });
+                            if(res.data.flag){
+                                // 刷新列表
+                                this.findPage();
+                            }
+                        }).catch((r)=>{
+                            this.showMessage(r);
+                        });
+                    }).catch(() => {
+                        // 点击取消时，调用的地方
+                        // 少了catch 浏览器会报错
+                    });
+                },
+                // 弹出修改窗口
+                handleEdit(row) {
+                    //表单验证
+                    this.$refs['dataEditForm'].validate(valid=>{
+                        //表单验证通过
+                        if (valid) {
+                            //发送ajax请求
+                            axios.post("/sports/update.do", this.formData).then(res => {
+                                //提示结果
+                                this.$message({
+                                    message: res.data.message,
+                                    type: res.data.flag ? 'success' : 'error'
+                                });
+                                if (res.data.flag) {
+                                    //成功关闭窗口
+                                    this.dialogFormVisible4Edit = false;
+                                    //刷新数据
+                                    this.findPage();
+                                }
+                            })
+                        } else {
+                            this.$message({
+                                message:'运动验证失败',
+                                type:'error'
+                            })
+                        }
+                    })
+                },
+                // 修改数据后提交
+                handleUpdate(row) {
+                    this.resetForm();
+                    // 弹出窗口
+                    this.dialogFormVisible4Edit = true;
+                    // 回显数据
+                    axios.post('/sports/findById.do?id=' + row.id).then(res => {
+                        if(res.data.flag){
+                            // 数据绑定到修改的表单中
+                            this.formData = res.data.data
+                        }else{
+                            this.$message({
+                                message: res.data.message,
+                                type: 'error'
+                            })
+                        }
+                    })
+                },
+                // 切换页码时，需要刷新列表
+                handleCurrentChange(currentPage) {
+                // currentPage
+                    this.pagination.currentPage = currentPage;
+                    this.findPage();
+                }
+            }
+        })
+    </script>
+</html>

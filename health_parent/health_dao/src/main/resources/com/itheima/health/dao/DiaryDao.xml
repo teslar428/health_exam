@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.health.dao.DiaryDao">
+    <insert id="add" parameterType="com.itheima.health.dao.DiaryDao">
+        insert into t_diary (date,name,review,way,content,feedback,result)
+
+        values (#{date},#{name},#{review},#{way},#{content},#{feedback},#{result})
+    </insert>
+
+    <select id="findByCondition" parameterType="string" resultType="com.itheima.health.pojo.Diary">
+        select * from t_diary
+        <where>
+            <if test="value !=null and value.length>0">
+                name like #{value}
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" parameterType="int" resultType="com.itheima.health.pojo.Diary">
+        select * from t_diary where id = #{id}
+    </select>
+
+    <update id="update" parameterType="com.itheima.health.pojo.Diary">
+          update t_diary
+        set
+         date = #{date},
+         name = #{name},
+         review = #{review},
+         way = #{way},
+         content = #{content},
+         feedback = #{feedback},
+         result = #{result}
+         where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        delete from t_diary where id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.health.dao.IndicatorsDao">
+    <insert id="add" parameterType="com.itheima.health.pojo.Indicators">
+        insert into t_indicators(name,reference,unit,sex)
+         values(#{name},#{reference},#{unit},#{sex})
+    </insert>
+
+     <select id="findByCondition" parameterType="string" resultType="com.itheima.health.pojo.Indicators">
+        select * from t_indicators
+        <where>
+            <if test="value !=null and value.length>0">
+                name like #{value}
+            </if>
+        </where>
+     </select>
+
+     <select id="findById" parameterType="int" resultType="com.itheima.health.pojo.Indicators">
+         select * from  t_indicators where id = #{id}
+     </select>
+
+    <update id="update" parameterType="com.itheima.health.pojo.Indicators">
+        update t_indicators
+        set
+         name = #{name},
+         reference = #{reference},
+         unit = #{unit},
+         sex = #{sex}
+         where id = #{id}
+    </update>
+
+     <delete id="delete" parameterType="int">
+          delete from t_indicators where id=#{id}
+     </delete>
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.health.dao.SportsDao">
+    <insert id="add" parameterType="com.itheima.health.pojo.Sports">
+        insert into t_sports(coding,name,intensity,step,time,age)
+        values (#{coding},#{name},#{intensity},#{step},#{time},#{age})
+    </insert>
+    
+    <select id="findByCondition" parameterType="int" resultType="com.itheima.health.pojo.Sports">
+        select * from t_sports
+        <where>
+            <if test="value !=null and value.length>0">
+                coding like #{value} or name like #{value}
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" parameterType="int" resultType="com.itheima.health.pojo.Sports">
+        select * from t_sports where id =#{id}
+    </select>
+
+    <update id="update" parameterType="com.itheima.health.pojo.Sports">
+        update t_sports
+        set
+         coding = #{coding},
+         name = #{name},
+         intensity = #{intensity},
+         step = #{step},
+         time = #{time},
+         age = #{age}
+         where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="int">
+        delete from t_sports where id = #{id}
+    </delete>
+</mapper>

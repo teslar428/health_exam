@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itheima.health.dao.MenuDao">
+
+    <insert id="add" parameterType="com.itheima.health.pojo.Menu">
+        <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into t_menu(name,linkUrl,path,priority,icon,description,parentMenuId)
+        values
+        (#{name},#{linkUrl},#{path},#{priority},#{icon},#{description},#{parentMenuId})
+    </insert>
+
+    <insert id="setMenuAndPermission" parameterType="int">
+        insert into t_menu_permission(menu_id,permission_id)
+        values
+        (#{menuId},#{permissionId})
+    </insert>
+
+    <select id="selectByCondition" parameterType="string" resultType="com.itheima.health.pojo.Menu">
+        select * from t_menu
+        <if test="value != null and value.length > 0">
+            where name like "%${value}%"
+        </if>
+    </select>
+
+    <select id="findById" parameterType="int" resultType="com.itheima.health.pojo.Menu">
+        select * from t_menu where id = #{id}
+    </select>
+
+    <select id="findPermissionIdsByMenuId" parameterType="int" resultType="int">
+        select menu_id from t_menu_permission where menu_id = #{id}
+    </select>
+
+    <delete id="deleteAssociation" parameterType="int">
+        delete from t_menu_permission where menu_id = #{id}
+    </delete>
+
+    <update id="edit" parameterType="com.itheima.health.pojo.Menu">
+        update t_checkgroup
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="linkUrl != null">
+                linkUrl = #{linkUrl},
+            </if>
+            <if test="path != null">
+                path = #{path},
+            </if>
+            <if test="priority != null">
+                priority = #{priority},
+            </if>
+            <if test="icon != null">
+                icon = #{icon},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="parentMenuId != null">
+                parentMenuId = #{parentMenuId}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="findCountByMenuId" parameterType="integer" resultType="long">
+        select count(*) from t_role_menu where menu_id = #{menu_id}
+    </select>
+
+    <delete id="deleteById" parameterType="integer">
+        delete from t_menu where id = #{id}
+    </delete>
+
+    <select id="findAll" resultType="com.itheima.health.pojo.Menu">
+        select * from t_menu
+    </select>
+
+</mapper>
